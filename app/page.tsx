@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 /* ---------------------------------- icons ---------------------------------- */
 
@@ -100,7 +100,7 @@ function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "border-b border-white/10 bg-navy-950/85 shadow-lg shadow-navy-950/30 backdrop-blur-xl"
+          ? "border-b border-mist-200 bg-white/85 shadow-lg shadow-navy-950/5 backdrop-blur-xl"
           : "bg-transparent"
       }`}
     >
@@ -109,7 +109,7 @@ function Navbar() {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/30">
             <Icon d={paths.car} className="h-5 w-5" />
           </span>
-          <span className="text-lg font-extrabold tracking-tight text-white">
+          <span className="text-lg font-extrabold tracking-tight text-ink-900">
             Prenew<span className="text-accent-500">365</span>
           </span>
         </a>
@@ -119,7 +119,7 @@ function Navbar() {
             <a
               key={l.href}
               href={l.href}
-              className="text-sm font-medium text-white/70 transition-colors duration-200 hover:text-white"
+              className="text-sm font-medium text-ink-600 transition-colors duration-200 hover:text-ink-900"
             >
               {l.label}
             </a>
@@ -137,7 +137,7 @@ function Navbar() {
         </div>
 
         <button
-          className="grid h-11 w-11 cursor-pointer place-items-center rounded-lg text-white md:hidden"
+          className="grid h-11 w-11 cursor-pointer place-items-center rounded-lg text-ink-900 md:hidden"
           onClick={() => setOpen(!open)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
@@ -147,14 +147,14 @@ function Navbar() {
       </nav>
 
       {open && (
-        <div className="border-t border-white/10 bg-navy-950/95 px-5 py-4 backdrop-blur-xl md:hidden">
+        <div className="border-t border-mist-200 bg-white/95 px-5 py-4 backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-1">
             {navLinks.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-3 text-sm font-medium text-white/80 hover:bg-white/5 hover:text-white"
+                className="rounded-lg px-3 py-3 text-sm font-medium text-ink-600 hover:bg-mist-100 hover:text-ink-900"
               >
                 {l.label}
               </a>
@@ -186,9 +186,9 @@ type Tab = (typeof tabs)[number]["id"];
 
 function TabBar({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
   return (
-    <div className="bg-navy-950 pt-20 sm:pt-24">
+    <div className="bg-mist-50 pt-20 sm:pt-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        <div className="flex gap-1 rounded-2xl border border-white/10 bg-white/5 p-1.5 backdrop-blur-md sm:max-w-md">
+        <div className="flex gap-1 rounded-2xl border border-mist-200 bg-white p-1.5 shadow-sm sm:max-w-md">
           {tabs.map((t) => (
             <button
               key={t.id}
@@ -199,7 +199,7 @@ function TabBar({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
               className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-2.5 text-xs font-bold transition-colors duration-200 sm:gap-2 sm:px-3 sm:text-sm ${
                 tab === t.id
                   ? "bg-gradient-to-r from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/25"
-                  : "text-white/60 hover:text-white"
+                  : "text-ink-600 hover:text-ink-900"
               }`}
             >
               <Icon d={t.icon} className="h-4 w-4 shrink-0" />
@@ -214,16 +214,15 @@ function TabBar({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
 
 /* ----------------------------------- hero ---------------------------------- */
 
-function RegForm({ dark = false }: { dark?: boolean }) {
+function RegForm() {
+  const id = useId();
   const [reg, setReg] = useState("");
   const [done, setDone] = useState(false);
 
   if (done) {
     return (
       <div
-        className={`flex items-center gap-3 rounded-2xl p-4 ${
-          dark ? "bg-white/10 text-white" : "bg-emerald-50 text-emerald-900"
-        }`}
+        className="flex items-center gap-3 rounded-2xl bg-emerald-50 p-4 text-emerald-900 ring-1 ring-emerald-200"
         role="status"
       >
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
@@ -243,24 +242,18 @@ function RegForm({ dark = false }: { dark?: boolean }) {
         e.preventDefault();
         if (reg.trim().length >= 6) setDone(true);
       }}
-      className={`flex flex-col gap-3 rounded-2xl p-2 sm:flex-row sm:items-center ${
-        dark ? "bg-white/10 backdrop-blur-md ring-1 ring-white/15" : "bg-white shadow-xl shadow-navy-950/10 ring-1 ring-mist-200"
-      }`}
+      className="flex flex-col gap-3 rounded-2xl bg-white p-2 shadow-xl shadow-navy-950/10 ring-1 ring-mist-200 sm:flex-row sm:items-center"
     >
-      <label htmlFor={dark ? "reg-dark" : "reg"} className="sr-only">
+      <label htmlFor={id} className="sr-only">
         Car registration number
       </label>
       <input
-        id={dark ? "reg-dark" : "reg"}
+        id={id}
         value={reg}
         onChange={(e) => setReg(e.target.value.toUpperCase())}
         placeholder="Enter your car number"
         autoComplete="off"
-        className={`h-13 min-h-[52px] flex-1 rounded-xl px-5 text-base font-semibold tracking-wide outline-none transition-shadow placeholder:font-medium focus-visible:ring-2 focus-visible:ring-accent-500 ${
-          dark
-            ? "bg-transparent text-white placeholder:text-white/40"
-            : "bg-mist-100 text-ink-900 placeholder:text-ink-400"
-        }`}
+        className="h-13 min-h-[52px] flex-1 rounded-xl bg-mist-100 px-5 text-base font-semibold tracking-wide text-ink-900 outline-none transition-shadow placeholder:font-medium placeholder:text-ink-400 focus-visible:ring-2 focus-visible:ring-accent-500"
       />
       <button
         type="submit"
@@ -280,64 +273,64 @@ function OfferCard() {
       <div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-br from-accent-500/25 via-flame-500/10 to-transparent blur-3xl" />
 
       {/* main offer card */}
-      <div className="relative rounded-3xl border border-white/15 bg-white/[0.07] p-6 shadow-2xl shadow-navy-950/50 backdrop-blur-xl">
+      <div className="relative rounded-3xl border border-mist-200 bg-white p-6 shadow-2xl shadow-navy-950/10">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/50">
+            <p className="text-xs font-semibold uppercase tracking-widest text-ink-400">
               Your exchange offer
             </p>
-            <p className="mt-1 text-sm font-semibold text-white/80">
+            <p className="mt-1 text-sm font-semibold text-ink-600">
               Maruti Baleno Zeta · 2021
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-400 ring-1 ring-emerald-400/30">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600 ring-1 ring-emerald-200">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
             Live offer
           </span>
         </div>
 
-        <p className="mt-5 text-5xl font-extrabold tracking-tight text-white">
+        <p className="mt-5 text-5xl font-extrabold tracking-tight text-ink-900">
           ₹6,45,000
         </p>
-        <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-emerald-400">
+        <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-emerald-600">
           <Icon d={paths.arrowRight} className="h-4 w-4 -rotate-45" />
           ₹38,000 above best market quote
         </p>
 
-        <div className="mt-6 space-y-3 border-t border-white/10 pt-5">
+        <div className="mt-6 space-y-3 border-t border-mist-200 pt-5">
           {[
             { icon: paths.handshake, text: "Exchanged via new-car dealership" },
             { icon: paths.fileCheck, text: "RC transfer — assured & tracked" },
             { icon: paths.gift, text: "₹10,000 accessories voucher on your new car" },
           ].map((row) => (
             <div key={row.text} className="flex items-center gap-3">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/10 text-flame-500">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-mist-100 text-flame-500">
                 <Icon d={row.icon} className="h-4 w-4" />
               </span>
-              <p className="text-sm font-medium text-white/85">{row.text}</p>
+              <p className="text-sm font-medium text-ink-600">{row.text}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* floating badges */}
-      <div className="float-y absolute -bottom-11 -left-6 hidden items-center gap-2 rounded-2xl border border-white/15 bg-navy-800/90 px-4 py-3 shadow-xl backdrop-blur-md sm:flex">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/15 text-emerald-400">
+      <div className="float-y absolute -bottom-11 -left-6 hidden items-center gap-2 rounded-2xl border border-mist-200 bg-white px-4 py-3 shadow-xl shadow-navy-950/10 sm:flex">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-100 text-emerald-600">
           <Icon d={paths.shieldCheck} className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-xs font-bold text-white">RC Transferred</p>
-          <p className="text-[11px] font-medium text-white/50">100% assured</p>
+          <p className="text-xs font-bold text-ink-900">RC Transferred</p>
+          <p className="text-[11px] font-medium text-ink-400">100% assured</p>
         </div>
       </div>
 
-      <div className="float-y-slow absolute -right-3 -top-9 hidden items-center gap-2 rounded-2xl border border-white/15 bg-navy-800/90 px-4 py-3 shadow-xl backdrop-blur-md sm:flex">
+      <div className="float-y-slow absolute -right-3 -top-9 hidden items-center gap-2 rounded-2xl border border-mist-200 bg-white px-4 py-3 shadow-xl shadow-navy-950/10 sm:flex">
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-flame-500/15 text-flame-500">
           <Icon d={paths.tag} className="h-5 w-5" />
         </span>
         <div>
-          <p className="text-xs font-bold text-white">Best price promise</p>
-          <p className="text-[11px] font-medium text-white/50">Beat any quote</p>
+          <p className="text-xs font-bold text-ink-900">Best price promise</p>
+          <p className="text-[11px] font-medium text-ink-400">Beat any quote</p>
         </div>
       </div>
     </div>
@@ -348,7 +341,7 @@ function Hero() {
   return (
     <section
       id="get-price"
-      className="relative overflow-hidden bg-navy-950 pb-20 pt-10 sm:pt-14"
+      className="relative overflow-hidden bg-mist-50 pb-20 pt-10 sm:pt-14"
     >
       {/* backdrop */}
       <div className="hero-grid absolute inset-0" />
@@ -357,15 +350,15 @@ function Hero() {
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:px-8">
         <div>
-          <div className="rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur-md">
+          <div className="rise inline-flex items-center gap-2 rounded-full border border-mist-200 bg-white px-4 py-1.5 shadow-sm">
             <Icon d={paths.star} className="h-3.5 w-3.5 text-flame-500" />
-            <span className="text-xs font-semibold tracking-wide text-white/80">
+            <span className="text-xs font-semibold tracking-wide text-ink-600">
               India&apos;s smarter way to upgrade your car
             </span>
           </div>
 
           <h1
-            className="rise mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl"
+            className="rise mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-ink-900 sm:text-5xl lg:text-6xl"
             style={{ "--rise-delay": "100ms" } as React.CSSProperties}
           >
             Don&apos;t sell your car.
@@ -376,20 +369,20 @@ function Hero() {
           </h1>
 
           <p
-            className="rise mt-6 max-w-xl text-lg leading-relaxed text-white/70"
+            className="rise mt-6 max-w-xl text-lg leading-relaxed text-ink-600"
             style={{ "--rise-delay": "200ms" } as React.CSSProperties}
           >
-            We promise the <strong className="text-white">best price in the market</strong> —
+            We promise the <strong className="text-ink-900">best price in the market</strong> —
             because you don&apos;t sell to a dealer, you exchange through our{" "}
-            <strong className="text-white">new-car dealership network</strong>. With{" "}
-            <strong className="text-white">assured RC transfer</strong>, every single time.
+            <strong className="text-ink-900">new-car dealership network</strong>. With{" "}
+            <strong className="text-ink-900">assured RC transfer</strong>, every single time.
           </p>
 
           <div
             className="rise mt-8 max-w-xl"
             style={{ "--rise-delay": "300ms" } as React.CSSProperties}
           >
-            <RegForm dark />
+            <RegForm />
           </div>
 
           <div
@@ -403,9 +396,9 @@ function Hero() {
             ].map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/75"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-ink-600"
               >
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-500/20 text-emerald-400">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-100 text-emerald-600">
                   <Icon d={paths.check} className="h-3 w-3" strokeWidth={3} />
                 </span>
                 {t}
@@ -439,18 +432,18 @@ const brands = [
 
 function BrandMarquee() {
   return (
-    <section className="border-b border-white/5 bg-navy-950 py-8">
-      <p className="mb-5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
+    <section className="border-y border-mist-200 bg-white py-8">
+      <p className="mb-5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-ink-400">
         Exchange across every major brand&apos;s dealership network
       </p>
       <div className="relative overflow-hidden" aria-hidden="true">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-navy-950 to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-navy-950 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-white to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-white to-transparent" />
         <div className="marquee-track flex w-max gap-12 pr-12">
           {[...brands, ...brands].map((b, i) => (
             <span
               key={`${b}-${i}`}
-              className="whitespace-nowrap text-lg font-bold tracking-wide text-white/30"
+              className="whitespace-nowrap text-lg font-bold tracking-wide text-ink-400/70"
             >
               {b}
             </span>
@@ -472,18 +465,18 @@ const stats = [
 
 function Stats() {
   return (
-    <section className="bg-navy-950 pb-16 pt-4">
+    <section className="bg-white pb-20 pt-12">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 lg:grid-cols-4 lg:px-8">
         {stats.map((s, i) => (
           <div
             key={s.label}
-            className="reveal rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center backdrop-blur-sm"
+            className="reveal rounded-2xl border border-mist-200 bg-mist-50 p-6 text-center"
             style={{ "--reveal-delay": `${i * 80}ms` } as React.CSSProperties}
           >
-            <p className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            <p className="text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
               {s.value}
             </p>
-            <p className="mt-1.5 text-sm font-medium text-white/55">{s.label}</p>
+            <p className="mt-1.5 text-sm font-medium text-ink-600">{s.label}</p>
           </div>
         ))}
       </div>
@@ -674,7 +667,7 @@ const newCarSteps = [
 
 function NewCarDeal() {
   return (
-    <section id="new-car" className="relative overflow-hidden bg-navy-950 py-24">
+    <section id="new-car" className="relative overflow-hidden bg-mist-50 py-24">
       <div className="hero-grid absolute inset-0" />
       <div className="absolute -right-40 top-0 h-96 w-96 rounded-full bg-flame-500/10 blur-[100px]" />
 
@@ -683,11 +676,11 @@ function NewCarDeal() {
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-flame-500">
             Your next car, sorted too
           </p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
             We don&apos;t just take your old car.
             <br className="hidden sm:block" /> We win you the new one.
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-white/60">
+          <p className="mt-4 text-lg leading-relaxed text-ink-600">
             The same dealership network that competes for your old car competes
             for your new-car business — and we do the haggling for you.
           </p>
@@ -697,17 +690,17 @@ function NewCarDeal() {
           {newCarSteps.map((s, i) => (
             <div
               key={s.title}
-              className="reveal relative rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur-sm transition-colors duration-300 hover:bg-white/[0.08]"
+              className="reveal relative rounded-3xl border border-mist-200 bg-white p-8 shadow-sm transition-shadow duration-300 hover:shadow-xl hover:shadow-navy-950/10"
               style={{ "--reveal-delay": `${i * 100}ms` } as React.CSSProperties}
             >
-              <span className="absolute right-6 top-6 text-4xl font-extrabold text-white/10">
+              <span className="absolute right-6 top-6 text-4xl font-extrabold text-mist-200">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/25">
                 <Icon d={s.icon} className="h-6 w-6" />
               </span>
-              <h3 className="mt-5 text-lg font-bold text-white">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{s.text}</p>
+              <h3 className="mt-5 text-lg font-bold text-ink-900">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">{s.text}</p>
             </div>
           ))}
         </div>
@@ -743,21 +736,21 @@ function NewCarDeal() {
 
 function PrenewHero() {
   return (
-    <section className="relative overflow-hidden bg-navy-950 pb-20 pt-10 sm:pt-14">
+    <section className="relative overflow-hidden bg-mist-50 pb-20 pt-10 sm:pt-14">
       <div className="hero-grid absolute inset-0" />
       <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/10 blur-[120px]" />
 
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <div className="max-w-2xl">
-          <div className="rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur-md">
+          <div className="rise inline-flex items-center gap-2 rounded-full border border-mist-200 bg-white px-4 py-1.5 shadow-sm">
             <Icon d={paths.shieldCheck} className="h-3.5 w-3.5 text-flame-500" />
-            <span className="text-xs font-semibold tracking-wide text-white/80">
+            <span className="text-xs font-semibold tracking-wide text-ink-600">
               Certified pre-owned, dealer-sourced
             </span>
           </div>
 
           <h1
-            className="rise mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl"
+            className="rise mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-ink-900 sm:text-5xl"
             style={{ "--rise-delay": "100ms" } as React.CSSProperties}
           >
             Buy a Prenew car.
@@ -768,13 +761,13 @@ function PrenewHero() {
           </h1>
 
           <p
-            className="rise mt-6 max-w-xl text-lg leading-relaxed text-white/70"
+            className="rise mt-6 max-w-xl text-lg leading-relaxed text-ink-600"
             style={{ "--rise-delay": "200ms" } as React.CSSProperties}
           >
             Every Prenew car comes from a{" "}
-            <strong className="text-white">new-car dealership exchange</strong> —
+            <strong className="text-ink-900">new-car dealership exchange</strong> —
             inspected, transparently priced, with{" "}
-            <strong className="text-white">assured RC transfer</strong> to your name.
+            <strong className="text-ink-900">assured RC transfer</strong> to your name.
           </p>
 
           <div
@@ -788,9 +781,9 @@ function PrenewHero() {
             ].map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/75"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-ink-600"
               >
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-500/20 text-emerald-400">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-100 text-emerald-600">
                   <Icon d={paths.check} className="h-3 w-3" strokeWidth={3} />
                 </span>
                 {t}
@@ -834,7 +827,7 @@ function RcTransfer() {
   ];
 
   return (
-    <section id="rc-transfer" className="relative overflow-hidden bg-navy-950 py-24">
+    <section id="rc-transfer" className="relative overflow-hidden bg-mist-50 py-24">
       <div className="hero-grid absolute inset-0" />
       <div className="absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-accent-500/10 blur-[100px]" />
 
@@ -843,10 +836,10 @@ function RcTransfer() {
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-flame-500">
             The part everyone worries about
           </p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
             RC transfer. Assured. In writing.
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-white/60">
+          <p className="mt-4 text-lg leading-relaxed text-ink-600">
             The #1 fear in selling a car is the RC never getting transferred. Our
             dealership channel makes that impossible to slip through the cracks.
           </p>
@@ -856,14 +849,14 @@ function RcTransfer() {
           {items.map((it, i) => (
             <div
               key={it.title}
-              className="reveal rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur-sm transition-colors duration-300 hover:bg-white/[0.08]"
+              className="reveal rounded-3xl border border-mist-200 bg-white p-8 shadow-sm transition-shadow duration-300 hover:shadow-xl hover:shadow-navy-950/10"
               style={{ "--reveal-delay": `${i * 100}ms` } as React.CSSProperties}
             >
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-400/25">
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 ring-1 ring-emerald-200">
                 <Icon d={it.icon} className="h-6 w-6" />
               </span>
-              <h3 className="mt-5 text-lg font-bold text-white">{it.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{it.text}</p>
+              <h3 className="mt-5 text-lg font-bold text-ink-900">{it.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">{it.text}</p>
             </div>
           ))}
         </div>
@@ -897,7 +890,7 @@ const testimonials = [
 
 function Testimonials() {
   return (
-    <section className="bg-mist-50 py-24">
+    <section className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <div className="reveal mx-auto max-w-2xl text-center">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
@@ -1011,23 +1004,23 @@ function Faq() {
 
 function FinalCta() {
   return (
-    <section className="relative overflow-hidden bg-navy-950 py-24">
+    <section className="relative overflow-hidden bg-mist-50 py-24">
       <div className="hero-grid absolute inset-0" />
-      <div className="absolute left-1/2 top-1/2 h-[400px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-500/15 blur-[120px]" />
+      <div className="absolute left-1/2 top-1/2 h-[400px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-500/10 blur-[120px]" />
 
       <div className="relative mx-auto max-w-3xl px-5 text-center lg:px-8">
-        <h2 className="reveal text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+        <h2 className="reveal text-3xl font-extrabold tracking-tight text-ink-900 sm:text-5xl">
           Your car is worth more
           <br />
           <span className="bg-gradient-to-r from-accent-500 via-flame-500 to-amber-400 bg-clip-text text-transparent">
             than any quote you&apos;ve got.
           </span>
         </h2>
-        <p className="reveal mt-5 text-lg text-white/60">
+        <p className="reveal mt-5 text-lg text-ink-600">
           Find out in 30 seconds. Free evaluation, zero obligation.
         </p>
         <div className="reveal mx-auto mt-9 max-w-xl">
-          <RegForm dark />
+          <RegForm />
         </div>
       </div>
     </section>
@@ -1036,7 +1029,7 @@ function FinalCta() {
 
 function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-navy-950 py-12">
+    <footer className="border-t border-mist-200 bg-white py-12">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-start">
           <div className="max-w-sm text-center md:text-left">
@@ -1044,11 +1037,11 @@ function Footer() {
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-accent-500 to-flame-500 text-white">
                 <Icon d={paths.car} className="h-5 w-5" />
               </span>
-              <span className="text-lg font-extrabold tracking-tight text-white">
+              <span className="text-lg font-extrabold tracking-tight text-ink-900">
                 Prenew<span className="text-accent-500">365</span>
               </span>
             </a>
-            <p className="mt-4 text-sm leading-relaxed text-white/50">
+            <p className="mt-4 text-sm leading-relaxed text-ink-600">
               The best price for your car — because you don&apos;t sell, you exchange.
               Assured RC transfer through new-car dealership channels.
             </p>
@@ -1057,7 +1050,7 @@ function Footer() {
           <div className="flex flex-col items-center gap-3 md:items-end">
             <a
               href="tel:+911800000365"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 transition-colors hover:text-white"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-ink-600 transition-colors hover:text-ink-900"
             >
               <Icon d={paths.phone} className="h-4 w-4" />
               1800-000-365 (toll free)
@@ -1067,7 +1060,7 @@ function Footer() {
                 <a
                   key={l.href}
                   href={l.href}
-                  className="text-sm font-medium text-white/50 transition-colors hover:text-white"
+                  className="text-sm font-medium text-ink-400 transition-colors hover:text-ink-900"
                 >
                   {l.label}
                 </a>
@@ -1076,7 +1069,7 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/35">
+        <div className="mt-10 border-t border-mist-200 pt-6 text-center text-xs text-ink-400">
           © {new Date().getFullYear()} Prenew365. All rights reserved.
         </div>
       </div>
