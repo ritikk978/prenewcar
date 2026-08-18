@@ -78,12 +78,16 @@ function useReveal(dep?: unknown) {
 
 /* ---------------------------------- navbar --------------------------------- */
 
-const navLinks = [
-  { href: "#why-exchange", label: "Why exchange" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#rc-transfer", label: "RC transfer" },
-  { href: "#faq", label: "FAQ" },
-];
+const navLinks: Record<Tab, { href: string; label: string }[]> = {
+  exchange: [
+    { href: "#why-exchange", label: "Why exchange" },
+    { href: "#how-it-works", label: "How it works" },
+    { href: "#rc-transfer", label: "RC transfer" },
+    { href: "#faq", label: "FAQ" },
+  ],
+  new: [],
+  prenew: [],
+};
 
 const navCta: Record<Tab, { label: string; href: string }> = {
   exchange: { label: "Get exchange price", href: "#get-price" },
@@ -95,6 +99,7 @@ function Navbar({ tab }: { tab: Tab }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const cta = navCta[tab];
+  const links = navLinks[tab];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -122,7 +127,7 @@ function Navbar({ tab }: { tab: Tab }) {
         </a>
 
         <div className="hidden items-center gap-8 md:flex">
-          {navLinks.map((l) => (
+          {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -156,7 +161,7 @@ function Navbar({ tab }: { tab: Tab }) {
       {open && (
         <div className="border-t border-mist-200 bg-white/95 px-5 py-4 backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-1">
-            {navLinks.map((l) => (
+            {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
@@ -535,11 +540,11 @@ const stats = [
   { value: "100%", label: "RC transfers completed" },
 ];
 
-function Stats() {
+function Stats({ items = stats }: { items?: typeof stats }) {
   return (
     <section className="bg-white pb-20 pt-12">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 lg:grid-cols-4 lg:px-8">
-        {stats.map((s, i) => (
+        {items.map((s, i) => (
           <div
             key={s.label}
             className="reveal rounded-2xl border border-mist-200 bg-mist-50 p-6 text-center"
@@ -816,13 +821,114 @@ function NewCarDeal() {
 
 /* ------------------------------- buy prenew -------------------------------- */
 
+const soldCars: {
+  name: string;
+  year: number;
+  price: string;
+  img: string;
+  featured?: boolean;
+  tilt?: string;
+}[] = [
+  {
+    name: "Grand Vitara",
+    year: 2024,
+    price: "₹11.5 L",
+    img: "/cars/grand-vitara.jpg",
+    featured: true,
+  },
+  { name: "Seltos", year: 2022, price: "₹7.5 L", img: "/cars/seltos.jpg", tilt: "lg:-rotate-2" },
+  { name: "Verna", year: 2020, price: "₹6.5 L", img: "/cars/verna.png", tilt: "lg:rotate-2" },
+  { name: "Baleno", year: 2023, price: "₹4.75 L", img: "/cars/baleno.jpg", tilt: "lg:rotate-1" },
+  { name: "Polo GT", year: 2020, price: "₹4.5 L", img: "/cars/polo-gt.png", tilt: "lg:-rotate-1" },
+];
+
+function SoldStamp() {
+  return (
+    <span className="absolute right-3 top-3 -rotate-6 rounded-md border-2 border-white/90 bg-navy-950/40 px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.15em] text-white shadow-lg backdrop-blur-sm">
+      Sold
+    </span>
+  );
+}
+
+function SoldCollage() {
+  return (
+    <div className="relative mx-auto w-full max-w-[25.2rem]">
+      {/* glow */}
+      <div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-br from-accent-500/25 via-flame-500/10 to-transparent blur-3xl" />
+
+      <div className="relative">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="inline-flex items-center gap-2 rounded-full border border-mist-200 bg-white px-4 py-1.5 shadow-sm">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+            <span className="text-xs font-bold tracking-wide text-ink-600">
+              Recently sold on Prenew365
+            </span>
+          </span>
+          <span className="hidden text-xs font-semibold text-ink-400 sm:block">
+            This month
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          {soldCars.map((c, i) => (
+            <div
+              key={c.name}
+              className={`rise group overflow-hidden rounded-2xl bg-white shadow-lg shadow-navy-950/10 ring-1 ring-mist-200 transition-all duration-300 hover:-translate-y-1 hover:rotate-0 hover:shadow-xl ${
+                c.featured ? "col-span-2" : ""
+              } ${c.tilt ?? ""}`}
+              style={{ "--rise-delay": `${250 + i * 90}ms` } as React.CSSProperties}
+            >
+              <div
+                className={`relative overflow-hidden ${
+                  c.featured ? "aspect-[2/1]" : "aspect-[16/10]"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={c.img}
+                  alt={`${c.name} ${c.year}`}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <SoldStamp />
+              </div>
+              <div className="flex items-center justify-between gap-2 px-4 py-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-ink-900">{c.name}</p>
+                  <p className="text-[11px] font-medium text-ink-400">{c.year}</p>
+                </div>
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ink-900 py-1 pl-2 pr-2.5 text-xs font-bold text-white">
+                  <Icon d={paths.tag} className="h-3 w-3 text-flame-500" />
+                  {c.price}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div
+          className="rise mt-4 flex items-center justify-center gap-2.5 rounded-2xl border border-mist-200 bg-white px-4 py-3 shadow-sm"
+          style={{ "--rise-delay": "700ms" } as React.CSSProperties}
+        >
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-100 text-emerald-600">
+            <Icon d={paths.shieldCheck} className="h-4 w-4" />
+          </span>
+          <p className="text-xs font-semibold text-ink-600">
+            <span className="font-bold text-ink-900">RC transferred on all 5 cars</span>{" "}
+            · assured, in writing
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PrenewHero() {
   return (
     <section className="relative overflow-hidden bg-mist-50 pb-20 pt-10 sm:pt-14">
       <div className="hero-grid absolute inset-0" />
       <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/10 blur-[120px]" />
 
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12 lg:px-8">
         <div className="max-w-2xl">
           <div className="rise inline-flex items-center gap-2 rounded-full border border-mist-200 bg-white px-4 py-1.5 shadow-sm">
             <Icon d={paths.shieldCheck} className="h-3.5 w-3.5 text-flame-500" />
@@ -893,6 +999,77 @@ function PrenewHero() {
             Prefer to talk? 1800-000-365 (toll free)
           </a>
         </div>
+
+        <div className="rise" style={{ "--rise-delay": "250ms" } as React.CSSProperties}>
+          <SoldCollage />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------ dealer network ----------------------------- */
+
+// ponytail: dummy data, replace with API/CMS feed when real dealers onboard
+const dealers = [
+  { name: "Pearl Maruti Suzuki", brand: "Maruti Suzuki", city: "Gurugram", cars: 14, rating: 4.8 },
+  { name: "Capital Hyundai", brand: "Hyundai", city: "Noida", cars: 11, rating: 4.7 },
+  { name: "Frontier Tata Motors", brand: "Tata", city: "New Delhi", cars: 9, rating: 4.8 },
+  { name: "Shiva Kia", brand: "Kia", city: "Faridabad", cars: 8, rating: 4.6 },
+  { name: "Ring Road Honda", brand: "Honda", city: "New Delhi", cars: 7, rating: 4.7 },
+  { name: "Silverline Toyota", brand: "Toyota", city: "Ghaziabad", cars: 6, rating: 4.9 },
+];
+
+function DealerNetwork() {
+  return (
+    <section className="bg-white py-24">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-flame-500">
+            Where your car comes from
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+            Sourced from new-car dealerships
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-ink-600">
+            Every Prenew car is an exchange car from a registered new-car
+            dealership — not an anonymous private seller.
+          </p>
+        </div>
+
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {dealers.map((d, i) => (
+            <div
+              key={d.name}
+              className="reveal flex items-start gap-4 rounded-3xl border border-mist-200 bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-xl hover:shadow-navy-950/10"
+              style={{ "--reveal-delay": `${i * 80}ms` } as React.CSSProperties}
+            >
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-mist-100 text-ink-600 ring-1 ring-mist-200">
+                <Icon d={paths.car} className="h-6 w-6" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="truncate text-base font-bold text-ink-900">{d.name}</h3>
+                <p className="mt-0.5 flex items-center gap-1.5 text-sm text-ink-500">
+                  <Icon d={paths.mapPin} className="h-3.5 w-3.5 shrink-0" />
+                  {d.city} · {d.brand}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+                    {d.cars} Prenew cars
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-700">
+                    <Icon d={paths.star} className="h-3 w-3" />
+                    {d.rating}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="reveal mt-10 text-center text-sm font-semibold text-ink-400">
+          Part of our 400+ dealership partner network across NCR
+        </p>
       </div>
     </section>
   );
@@ -900,24 +1077,42 @@ function PrenewHero() {
 
 /* ------------------------------- rc transfer ------------------------------- */
 
-function RcTransfer() {
-  const items = [
-    {
-      icon: paths.shieldCheck,
-      title: "Dealership-channel transfer",
-      text: "Your RC transfer runs through the new-car dealership that takes your car — a registered business, not an anonymous buyer.",
-    },
-    {
-      icon: paths.fileCheck,
-      title: "Tracked till it's done",
-      text: "Get status updates at every stage — from Form 29/30 to the new RC. You'll never wonder where your transfer stands.",
-    },
-    {
-      icon: paths.shield,
-      title: "Zero future liability",
-      text: "Challans, tolls, accidents after handover — none of it comes back to you. We put the assurance in writing.",
-    },
-  ];
+function RcTransfer({ buyer = false }: { buyer?: boolean }) {
+  const items = buyer
+    ? [
+        {
+          icon: paths.shieldCheck,
+          title: "Dealership-channel transfer",
+          text: "Your RC reaches you through the new-car dealership channel — a registered business, not an anonymous private seller.",
+        },
+        {
+          icon: paths.fileCheck,
+          title: "Tracked till it's done",
+          text: "Get status updates at every stage — from Form 29/30 to the RC in your name. You'll never wonder where your transfer stands.",
+        },
+        {
+          icon: paths.shield,
+          title: "Zero past liability",
+          text: "Pending challans, dues and hypothecation are cleared before handover — the car reaches you with a clean slate, in writing.",
+        },
+      ]
+    : [
+        {
+          icon: paths.shieldCheck,
+          title: "Dealership-channel transfer",
+          text: "Your RC transfer runs through the new-car dealership that takes your car — a registered business, not an anonymous buyer.",
+        },
+        {
+          icon: paths.fileCheck,
+          title: "Tracked till it's done",
+          text: "Get status updates at every stage — from Form 29/30 to the new RC. You'll never wonder where your transfer stands.",
+        },
+        {
+          icon: paths.shield,
+          title: "Zero future liability",
+          text: "Challans, tolls, accidents after handover — none of it comes back to you. We put the assurance in writing.",
+        },
+      ];
 
   return (
     <section id="rc-transfer" className="relative overflow-hidden bg-mist-50 py-24">
@@ -933,8 +1128,9 @@ function RcTransfer() {
             RC transfer. Assured. In writing.
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-ink-600">
-            The #1 fear in selling a car is the RC never getting transferred. Our
-            dealership channel makes that impossible to slip through the cracks.
+            {buyer
+              ? "The #1 fear in buying a pre-owned car is the RC never reaching your name. Every Prenew purchase includes a tracked, assured transfer."
+              : "The #1 fear in selling a car is the RC never getting transferred. Our dealership channel makes that impossible to slip through the cracks."}
           </p>
         </div>
 
@@ -960,42 +1156,97 @@ function RcTransfer() {
 
 /* ------------------------------- testimonials ------------------------------ */
 
-const testimonials = [
-  {
-    quote:
-      "Cars24 quoted ₹5.9L, a local dealer ₹6L. Prenew365's exchange offer was ₹6.4L — and the RC transfer was done in 3 weeks with updates on WhatsApp.",
-    name: "Rohit Sharma",
-    detail: "Exchanged a Hyundai i20 · Delhi",
+const testimonialCopy = {
+  exchange: {
+    eyebrow: "Real exchanges",
+    heading: "People who stopped selling and started exchanging",
+    items: [
+      {
+        quote:
+          "Cars24 quoted ₹5.9L, a local dealer ₹6L. Prenew365's exchange offer was ₹6.4L — and the RC transfer was done in 3 weeks with updates on WhatsApp.",
+        name: "Rohit Sharma",
+        detail: "Exchanged a Hyundai i20 · Delhi",
+      },
+      {
+        quote:
+          "I didn't want strangers coming home for test drives. One evaluation, three dealership offers by evening, money in my account in two days.",
+        name: "Priya Nair",
+        detail: "Exchanged a Honda City · Bengaluru",
+      },
+      {
+        quote:
+          "Sold my last car privately and chased the buyer for the RC transfer for a year. This time it was handled completely — I just got the confirmation.",
+        name: "Amandeep Singh",
+        detail: "Exchanged a Maruti Swift · Chandigarh",
+      },
+    ],
   },
-  {
-    quote:
-      "I didn't want strangers coming home for test drives. One evaluation, three dealership offers by evening, money in my account in two days.",
-    name: "Priya Nair",
-    detail: "Exchanged a Honda City · Bengaluru",
+  new: {
+    eyebrow: "Real deals",
+    heading: "People who let us do the haggling",
+    items: [
+      {
+        quote:
+          "The showroom's best offer was list price minus ₹15K. Prenew365 got the same dealership to ₹52K off — with mats and mud flaps thrown in.",
+        name: "Kunal Mehta",
+        detail: "Bought a Hyundai Creta · Gurugram",
+      },
+      {
+        quote:
+          "I told them the variant and colour on Monday. By Wednesday I had three dealer quotes, and the ₹10,000 voucher covered seat covers and a dashcam.",
+        name: "Sneha Kulkarni",
+        detail: "Bought a Tata Nexon · Pune",
+      },
+      {
+        quote:
+          "No showroom hopping, no back-and-forth on price. They negotiated with the dealers — I just picked the best offer and took delivery.",
+        name: "Arjun Reddy",
+        detail: "Bought a Maruti Fronx · Hyderabad",
+      },
+    ],
   },
-  {
-    quote:
-      "Sold my last car privately and chased the buyer for the RC transfer for a year. This time it was handled completely — I just got the confirmation.",
-    name: "Amandeep Singh",
-    detail: "Exchanged a Maruti Swift · Chandigarh",
+  prenew: {
+    eyebrow: "Real Prenew buyers",
+    heading: "People who bought better than used",
+    items: [
+      {
+        quote:
+          "The car came straight from a dealership exchange — full service history, an honest inspection report, and no surprises after delivery.",
+        name: "Rohit Sharma",
+        detail: "Bought a Prenew Hyundai i20 · Delhi",
+      },
+      {
+        quote:
+          "The RC was in my name in three weeks, with WhatsApp updates the whole way. Buying a pre-owned car never felt this clean.",
+        name: "Priya Nair",
+        detail: "Bought a Prenew Honda City · Bengaluru",
+      },
+      {
+        quote:
+          "One call, three certified cars matched to my budget by evening. The pricing was transparent — what was quoted is what I paid.",
+        name: "Amandeep Singh",
+        detail: "Bought a Prenew Maruti Swift · Chandigarh",
+      },
+    ],
   },
-];
+} as const;
 
-function Testimonials() {
+function Testimonials({ variant = "exchange" }: { variant?: Tab }) {
+  const { eyebrow, heading, items } = testimonialCopy[variant];
   return (
     <section className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <div className="reveal mx-auto max-w-2xl text-center">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
-            Real exchanges
+            {eyebrow}
           </p>
           <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
-            People who stopped selling and started exchanging
+            {heading}
           </h2>
         </div>
 
         <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
+          {items.map((t, i) => (
             <figure
               key={t.name}
               className="reveal flex flex-col rounded-3xl border border-mist-200 bg-white p-8 shadow-sm transition-shadow duration-300 hover:shadow-xl hover:shadow-navy-950/8"
@@ -1128,7 +1379,7 @@ function FinalCta({
   );
 }
 
-function Footer() {
+function Footer({ tab }: { tab: Tab }) {
   return (
     <footer className="border-t border-mist-200 bg-white py-12">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
@@ -1143,8 +1394,9 @@ function Footer() {
               </span>
             </a>
             <p className="mt-4 text-sm leading-relaxed text-ink-600">
-              The best price for your car — because you don&apos;t sell, you exchange.
-              Assured RC transfer through new-car dealership channels.
+              Exchange your old car, buy your next one new, or pick a certified
+              Prenew — with assured RC transfer through new-car dealership
+              channels, every time.
             </p>
           </div>
 
@@ -1157,7 +1409,7 @@ function Footer() {
               1800-000-365 (toll free)
             </a>
             <div className="flex gap-6">
-              {navLinks.map((l) => (
+              {navLinks[tab].map((l) => (
                 <a
                   key={l.href}
                   href={l.href}
@@ -1206,9 +1458,15 @@ export default function Home() {
       {tab === "new" && (
         <>
           <NewCarDeal />
-          <BrandMarquee />
-          <Stats />
-          <Testimonials />
+          <Stats
+            items={[
+              { value: "400+", label: "Dealership partners" },
+              { value: "₹10K", label: "Assured accessories voucher" },
+              { value: "30 min", label: "Callback with offers" },
+              { value: "₹0", label: "Charge for negotiating your deal" },
+            ]}
+          />
+          <Testimonials variant="new" />
           <FinalCta
             title={
               <>
@@ -1228,13 +1486,13 @@ export default function Home() {
       {tab === "prenew" && (
         <>
           <PrenewHero />
-          <BrandMarquee />
-          <RcTransfer />
-          <Testimonials />
+          <DealerNetwork />
+          <RcTransfer buyer />
+          <Testimonials variant="prenew" />
         </>
       )}
 
-      <Footer />
+      <Footer tab={tab} />
     </main>
   );
 }
