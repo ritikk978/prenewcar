@@ -1,69 +1,1021 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useRef, useState } from "react";
+
+/* ---------------------------------- icons ---------------------------------- */
+
+function Icon({
+  d,
+  className = "h-5 w-5",
+  strokeWidth = 2,
+}: {
+  d: string;
+  className?: string;
+  strokeWidth?: number;
+}) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  );
+}
+
+const paths = {
+  check: "M20 6 9 17l-5-5",
+  shield: "M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z",
+  shieldCheck: "M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10z M9 12l2 2 4-4",
+  tag: "M12 2H2v10l9.3 9.3a2 2 0 0 0 2.8 0l7.2-7.2a2 2 0 0 0 0-2.8L12 2z M7 7h.01",
+  arrowRight: "M5 12h14 M12 5l7 7-7 7",
+  rupee: "M6 3h12 M6 8h12 M6 13l8.5 8 M6 13h3a6 6 0 0 0 6-6V3",
+  fileCheck: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z M14 2v6h6 M9 15l2 2 4-4",
+  car: "M5 17H3v-4l2-5h12l3 5v4h-2 M7 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0 M15 17a2 2 0 1 0 4 0 2 2 0 1 0-4 0 M5 12h14",
+  star: "M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2z",
+  phone: "M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.4 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.9 2.2z",
+  plus: "M12 5v14 M5 12h14",
+  menu: "M4 6h16 M4 12h16 M4 18h16",
+  x: "M18 6 6 18 M6 6l12 12",
+  handshake:
+    "M11 17l-1.5 1.5a2.1 2.1 0 0 1-3-3L11 11l2-2c1-1 3-1 4 0l4 4 M8 8l-4 4 3.5 3.5 M13 9l4.5 4.5a2.1 2.1 0 0 1-3 3L13 15",
+  clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M12 6v6l4 2",
+  ban: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M4.9 4.9l14.2 14.2",
+  trendingUp: "M22 7l-8.5 8.5-5-5L2 17 M16 7h6v6",
+  users:
+    "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75",
+  mapPin:
+    "M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6",
+  zap: "M13 2 3 14h9l-1 8 10-12h-9l1-8",
+};
+
+/* ------------------------------ scroll reveal ------------------------------ */
+
+function useReveal() {
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".reveal");
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("in-view");
+            io.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+}
+
+/* ---------------------------------- navbar --------------------------------- */
+
+const navLinks = [
+  { href: "#why-exchange", label: "Why exchange" },
+  { href: "#how-it-works", label: "How it works" },
+  { href: "#rc-transfer", label: "RC transfer" },
+  { href: "#faq", label: "FAQ" },
+];
+
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "border-b border-white/10 bg-navy-950/85 shadow-lg shadow-navy-950/30 backdrop-blur-xl"
+          : "bg-transparent"
+      }`}
+    >
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:h-[72px] lg:px-8">
+        <a href="#" className="flex items-center gap-2.5" aria-label="Prenew365 home">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/30">
+            <Icon d={paths.car} className="h-5 w-5" />
+          </span>
+          <span className="text-lg font-extrabold tracking-tight text-white">
+            Prenew<span className="text-accent-500">365</span>
+          </span>
+        </a>
+
+        <div className="hidden items-center gap-8 md:flex">
+          {navLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="text-sm font-medium text-white/70 transition-colors duration-200 hover:text-white"
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+
+        <div className="hidden md:block">
+          <a
+            href="#get-price"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent-500 to-flame-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent-500/30 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98]"
+          >
+            Get exchange price
+            <Icon d={paths.arrowRight} className="h-4 w-4" />
+          </a>
+        </div>
+
+        <button
+          className="grid h-11 w-11 cursor-pointer place-items-center rounded-lg text-white md:hidden"
+          onClick={() => setOpen(!open)}
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+        >
+          <Icon d={open ? paths.x : paths.menu} className="h-6 w-6" />
+        </button>
+      </nav>
+
+      {open && (
+        <div className="border-t border-white/10 bg-navy-950/95 px-5 py-4 backdrop-blur-xl md:hidden">
+          <div className="flex flex-col gap-1">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="rounded-lg px-3 py-3 text-sm font-medium text-white/80 hover:bg-white/5 hover:text-white"
+              >
+                {l.label}
+              </a>
+            ))}
+            <a
+              href="#get-price"
+              onClick={() => setOpen(false)}
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent-500 to-flame-500 px-5 py-3 text-sm font-bold text-white"
+            >
+              Get exchange price
+              <Icon d={paths.arrowRight} className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+/* ----------------------------------- hero ---------------------------------- */
+
+function RegForm({ dark = false }: { dark?: boolean }) {
+  const [reg, setReg] = useState("");
+  const [done, setDone] = useState(false);
+
+  if (done) {
+    return (
+      <div
+        className={`flex items-center gap-3 rounded-2xl p-4 ${
+          dark ? "bg-white/10 text-white" : "bg-emerald-50 text-emerald-900"
+        }`}
+        role="status"
+      >
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
+          <Icon d={paths.check} className="h-5 w-5" />
+        </span>
+        <p className="text-sm font-semibold">
+          Got it — {reg.toUpperCase()}. Our exchange expert will call you within 30
+          minutes with your best price.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (reg.trim().length >= 6) setDone(true);
+      }}
+      className={`flex flex-col gap-3 rounded-2xl p-2 sm:flex-row sm:items-center ${
+        dark ? "bg-white/10 backdrop-blur-md ring-1 ring-white/15" : "bg-white shadow-xl shadow-navy-950/10 ring-1 ring-mist-200"
+      }`}
+    >
+      <label htmlFor={dark ? "reg-dark" : "reg"} className="sr-only">
+        Car registration number
+      </label>
+      <input
+        id={dark ? "reg-dark" : "reg"}
+        value={reg}
+        onChange={(e) => setReg(e.target.value.toUpperCase())}
+        placeholder="Enter your car number"
+        autoComplete="off"
+        className={`h-13 min-h-[52px] flex-1 rounded-xl px-5 text-base font-semibold tracking-wide outline-none transition-shadow placeholder:font-medium focus-visible:ring-2 focus-visible:ring-accent-500 ${
+          dark
+            ? "bg-transparent text-white placeholder:text-white/40"
+            : "bg-mist-100 text-ink-900 placeholder:text-ink-400"
+        }`}
+      />
+      <button
+        type="submit"
+        className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-flame-500 px-7 text-base font-bold text-white shadow-lg shadow-accent-500/30 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+      >
+        Get exchange price
+        <Icon d={paths.arrowRight} className="h-5 w-5" />
+      </button>
+    </form>
+  );
+}
+
+function OfferCard() {
+  return (
+    <div className="relative mx-auto w-full max-w-md">
+      {/* glow */}
+      <div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-br from-accent-500/25 via-flame-500/10 to-transparent blur-3xl" />
+
+      {/* main offer card */}
+      <div className="relative rounded-3xl border border-white/15 bg-white/[0.07] p-6 shadow-2xl shadow-navy-950/50 backdrop-blur-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/50">
+              Your exchange offer
+            </p>
+            <p className="mt-1 text-sm font-semibold text-white/80">
+              Maruti Baleno Zeta · 2021
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-400 ring-1 ring-emerald-400/30">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+            Live offer
+          </span>
+        </div>
+
+        <p className="mt-5 text-5xl font-extrabold tracking-tight text-white">
+          ₹6,45,000
+        </p>
+        <p className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-emerald-400">
+          <Icon d={paths.arrowRight} className="h-4 w-4 -rotate-45" />
+          ₹38,000 above best market quote
+        </p>
+
+        <div className="mt-6 space-y-3 border-t border-white/10 pt-5">
+          {[
+            { icon: paths.handshake, text: "Exchanged via new-car dealership" },
+            { icon: paths.fileCheck, text: "RC transfer — assured & tracked" },
+            { icon: paths.clock, text: "Payment within 48 hours" },
+          ].map((row) => (
+            <div key={row.text} className="flex items-center gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/10 text-flame-500">
+                <Icon d={row.icon} className="h-4 w-4" />
+              </span>
+              <p className="text-sm font-medium text-white/85">{row.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* floating badges */}
+      <div className="float-y absolute -bottom-11 -left-6 hidden items-center gap-2 rounded-2xl border border-white/15 bg-navy-800/90 px-4 py-3 shadow-xl backdrop-blur-md sm:flex">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-500/15 text-emerald-400">
+          <Icon d={paths.shieldCheck} className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="text-xs font-bold text-white">RC Transferred</p>
+          <p className="text-[11px] font-medium text-white/50">100% assured</p>
+        </div>
+      </div>
+
+      <div className="float-y-slow absolute -right-3 -top-9 hidden items-center gap-2 rounded-2xl border border-white/15 bg-navy-800/90 px-4 py-3 shadow-xl backdrop-blur-md sm:flex">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-flame-500/15 text-flame-500">
+          <Icon d={paths.tag} className="h-5 w-5" />
+        </span>
+        <div>
+          <p className="text-xs font-bold text-white">Best price promise</p>
+          <p className="text-[11px] font-medium text-white/50">Beat any quote</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section
+      id="get-price"
+      className="relative overflow-hidden bg-navy-950 pb-20 pt-32 sm:pt-40"
+    >
+      {/* backdrop */}
+      <div className="hero-grid absolute inset-0" />
+      <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/10 blur-[120px]" />
+      <div className="absolute -right-40 top-1/3 h-96 w-96 rounded-full bg-flame-500/10 blur-[100px]" />
+
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:px-8">
+        <div>
+          <div className="rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur-md">
+            <Icon d={paths.star} className="h-3.5 w-3.5 text-flame-500" />
+            <span className="text-xs font-semibold tracking-wide text-white/80">
+              India&apos;s smarter way to upgrade your car
+            </span>
+          </div>
+
+          <h1
+            className="rise mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl"
+            style={{ "--rise-delay": "100ms" } as React.CSSProperties}
+          >
+            Don&apos;t sell your car.
+            <br />
+            <span className="bg-gradient-to-r from-accent-500 via-flame-500 to-amber-400 bg-clip-text text-transparent">
+              Exchange it.
+            </span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+          <p
+            className="rise mt-6 max-w-xl text-lg leading-relaxed text-white/70"
+            style={{ "--rise-delay": "200ms" } as React.CSSProperties}
+          >
+            We promise the <strong className="text-white">best price in the market</strong> —
+            because you don&apos;t sell to a dealer, you exchange through our{" "}
+            <strong className="text-white">new-car dealership network</strong>. With{" "}
+            <strong className="text-white">assured RC transfer</strong>, every single time.
+          </p>
+
+          <div
+            className="rise mt-8 max-w-xl"
+            style={{ "--rise-delay": "300ms" } as React.CSSProperties}
+          >
+            <RegForm dark />
+          </div>
+
+          <div
+            className="rise mt-6 flex flex-wrap gap-x-6 gap-y-3"
+            style={{ "--rise-delay": "400ms" } as React.CSSProperties}
+          >
+            {[
+              "Best price promise",
+              "Assured RC transfer",
+              "Zero hidden charges",
+            ].map((t) => (
+              <span
+                key={t}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white/75"
+              >
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-500/20 text-emerald-400">
+                  <Icon d={paths.check} className="h-3 w-3" strokeWidth={3} />
+                </span>
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="rise" style={{ "--rise-delay": "250ms" } as React.CSSProperties}>
+          <OfferCard />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* --------------------------------- marquee --------------------------------- */
+
+const brands = [
+  "Maruti Suzuki",
+  "Hyundai",
+  "Tata Motors",
+  "Mahindra",
+  "Kia",
+  "Toyota",
+  "Honda",
+  "MG",
+  "Skoda",
+  "Volkswagen",
+];
+
+function BrandMarquee() {
+  return (
+    <section className="border-b border-white/5 bg-navy-950 py-8">
+      <p className="mb-5 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white/40">
+        Exchange across every major brand&apos;s dealership network
+      </p>
+      <div className="relative overflow-hidden" aria-hidden="true">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-navy-950 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-navy-950 to-transparent" />
+        <div className="marquee-track flex w-max gap-12 pr-12">
+          {[...brands, ...brands].map((b, i) => (
+            <span
+              key={`${b}-${i}`}
+              className="whitespace-nowrap text-lg font-bold tracking-wide text-white/30"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              {b}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------- stats ---------------------------------- */
+
+const stats = [
+  { value: "400+", label: "Dealership partners" },
+  { value: "₹38K", label: "Avg. more than market quotes" },
+  { value: "48 hrs", label: "Average payment time" },
+  { value: "100%", label: "RC transfers completed" },
+];
+
+function Stats() {
+  return (
+    <section className="bg-navy-950 pb-16 pt-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 lg:grid-cols-4 lg:px-8">
+        {stats.map((s, i) => (
+          <div
+            key={s.label}
+            className="reveal rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-center backdrop-blur-sm"
+            style={{ "--reveal-delay": `${i * 80}ms` } as React.CSSProperties}
+          >
+            <p className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              {s.value}
+            </p>
+            <p className="mt-1.5 text-sm font-medium text-white/55">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------ why exchange ------------------------------- */
+
+function WhyExchange() {
+  const selling = [
+    "Dealers lowball — they resell your car for margin",
+    "Endless calls, haggling and test-drive strangers",
+    "RC transfer left to the buyer's goodwill",
+    "Payment in instalments, sometimes in cash",
+  ];
+  const exchanging = [
+    "New-car dealerships pay more — your car fuels their sale",
+    "One evaluation, competing dealership offers",
+    "RC transfer handled and tracked by us — assured",
+    "Full payment to your bank within 48 hours",
+  ];
+
+  return (
+    <section id="why-exchange" className="bg-mist-50 py-24">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
+            Why exchange wins
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+            Selling gets you a quote.
+            <br className="hidden sm:block" /> Exchanging gets you the best price.
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-ink-600">
+            When a new-car dealership takes your car in exchange, your car helps them
+            close a new-car sale — so they can afford to pay you more than any
+            resale dealer ever will.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          <div className="reveal rounded-3xl border border-mist-200 bg-white p-8">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-mist-100 text-ink-400">
+                <Icon d={paths.ban} className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 className="text-lg font-bold text-ink-900">Selling the old way</h3>
+                <p className="text-sm text-ink-400">Classifieds &amp; resale dealers</p>
+              </div>
+            </div>
+            <ul className="mt-6 space-y-4">
+              {selling.map((t) => (
+                <li key={t} className="flex items-start gap-3 text-[15px] text-ink-600">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-mist-100 text-ink-400">
+                    <Icon d={paths.x} className="h-3 w-3" strokeWidth={3} />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div
+            className="reveal relative overflow-hidden rounded-3xl bg-navy-950 p-8 shadow-2xl shadow-navy-950/30"
+            style={{ "--reveal-delay": "120ms" } as React.CSSProperties}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-accent-500/20 blur-3xl" />
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-accent-500 to-flame-500 text-white">
+                    <Icon d={paths.handshake} className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">
+                      Exchanging with Prenew365
+                    </h3>
+                    <p className="text-sm text-white/50">New-car dealership channel</p>
+                  </div>
+                </div>
+                <span className="hidden rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-400 ring-1 ring-emerald-400/30 sm:block">
+                  Recommended
+                </span>
+              </div>
+              <ul className="mt-6 space-y-4">
+                {exchanging.map((t) => (
+                  <li
+                    key={t}
+                    className="flex items-start gap-3 text-[15px] font-medium text-white/85"
+                  >
+                    <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-400">
+                      <Icon d={paths.check} className="h-3 w-3" strokeWidth={3} />
+                    </span>
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------- how it works ------------------------------ */
+
+const steps = [
+  {
+    icon: paths.car,
+    title: "Share your car details",
+    text: "Enter your car number and get an instant estimate. Book a free doorstep evaluation at a time that suits you.",
+  },
+  {
+    icon: paths.tag,
+    title: "Dealerships compete for it",
+    text: "Your car goes to our network of 400+ new-car dealerships. They bid because your car helps them sell a new one.",
+  },
+  {
+    icon: paths.rupee,
+    title: "Get the best price, fast",
+    text: "Accept the highest offer. Full payment lands in your bank account within 48 hours — no cash, no instalments.",
+  },
+  {
+    icon: paths.fileCheck,
+    title: "RC transfer, assured",
+    text: "We handle the entire RC transfer through the dealership channel and keep you updated until it's done. In writing.",
+  },
+];
+
+function HowItWorks() {
+  return (
+    <section id="how-it-works" className="bg-white py-24">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
+            How it works
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+            From car number to best price in 4 steps
+          </h2>
+        </div>
+
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((s, i) => (
+            <div
+              key={s.title}
+              className="reveal group relative rounded-3xl border border-mist-200 bg-mist-50 p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-500/30 hover:bg-white hover:shadow-xl hover:shadow-navy-950/10"
+              style={{ "--reveal-delay": `${i * 100}ms` } as React.CSSProperties}
+            >
+              <span className="absolute right-6 top-6 text-4xl font-extrabold text-mist-200 transition-colors duration-300 group-hover:text-accent-500/15">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/25">
+                <Icon d={s.icon} className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-lg font-bold text-ink-900">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">{s.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* --------------------------- benefits across network ----------------------- */
+
+const networkBenefits = [
+  {
+    heading: "For New Car Dealers",
+    sub: "Turn exchange inventory into an advantage",
+    icon: paths.car,
+    items: [
+      {
+        icon: paths.zap,
+        title: "Faster Exchange Liquidation",
+        text: "Clear exchange inventory 3x faster through our dealer network.",
+      },
+      {
+        icon: paths.trendingUp,
+        title: "Higher Resale Realization",
+        text: "Get better prices through competitive dealer bidding.",
+      },
+      {
+        icon: paths.star,
+        title: "Improved Customer Satisfaction",
+        text: "Better exchange values lead to happier customers.",
+      },
+      {
+        icon: paths.rupee,
+        title: "Additional Revenue Stream",
+        text: "Monetize exchange inventory more effectively.",
+      },
+    ],
+  },
+  {
+    heading: "For Used Car Dealers",
+    sub: "Source smarter, sell faster",
+    icon: paths.users,
+    items: [
+      {
+        icon: paths.shieldCheck,
+        title: "Access to Verified Inventory",
+        text: "Source quality vehicles from trusted new car dealers.",
+      },
+      {
+        icon: paths.mapPin,
+        title: "Pan-India Network",
+        text: "Break geographical barriers and source from anywhere.",
+      },
+      {
+        icon: paths.trendingUp,
+        title: "Better Margins",
+        text: "Direct sourcing eliminates middlemen and improves profitability.",
+      },
+      {
+        icon: paths.clock,
+        title: "Reduced Sourcing Time",
+        text: "Find the right vehicles in minutes, not days.",
+      },
+    ],
+  },
+];
+
+function NetworkBenefits() {
+  return (
+    <section id="network" className="bg-mist-50 py-24">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
+            Benefits across the network
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+            Powerful advantages for every dealer in the ecosystem
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-ink-600">
+            The same network that gets you the best exchange price keeps dealers
+            winning too — that&apos;s why they compete for your car.
+          </p>
+        </div>
+
+        <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          {networkBenefits.map((group, gi) => (
+            <div
+              key={group.heading}
+              className="reveal rounded-3xl border border-mist-200 bg-white p-8 shadow-sm"
+              style={{ "--reveal-delay": `${gi * 120}ms` } as React.CSSProperties}
+            >
+              <div className="flex items-center gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/25">
+                  <Icon d={group.icon} className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="text-lg font-bold text-ink-900">{group.heading}</h3>
+                  <p className="text-sm text-ink-400">{group.sub}</p>
+                </div>
+              </div>
+
+              <div className="mt-7 grid gap-6 sm:grid-cols-2">
+                {group.items.map((it) => (
+                  <div key={it.title} className="flex items-start gap-3">
+                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-mist-100 text-accent-500">
+                      <Icon d={it.icon} className="h-4.5 w-4.5" />
+                    </span>
+                    <div>
+                      <p className="text-[15px] font-bold text-ink-900">{it.title}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-ink-600">
+                        {it.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------- rc transfer ------------------------------- */
+
+function RcTransfer() {
+  const items = [
+    {
+      icon: paths.shieldCheck,
+      title: "Dealership-channel transfer",
+      text: "Your RC transfer runs through the new-car dealership that takes your car — a registered business, not an anonymous buyer.",
+    },
+    {
+      icon: paths.fileCheck,
+      title: "Tracked till it's done",
+      text: "Get status updates at every stage — from Form 29/30 to the new RC. You'll never wonder where your transfer stands.",
+    },
+    {
+      icon: paths.shield,
+      title: "Zero future liability",
+      text: "Challans, tolls, accidents after handover — none of it comes back to you. We put the assurance in writing.",
+    },
+  ];
+
+  return (
+    <section id="rc-transfer" className="relative overflow-hidden bg-navy-950 py-24">
+      <div className="hero-grid absolute inset-0" />
+      <div className="absolute -left-40 bottom-0 h-96 w-96 rounded-full bg-accent-500/10 blur-[100px]" />
+
+      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-flame-500">
+            The part everyone worries about
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            RC transfer. Assured. In writing.
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/60">
+            The #1 fear in selling a car is the RC never getting transferred. Our
+            dealership channel makes that impossible to slip through the cracks.
+          </p>
+        </div>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {items.map((it, i) => (
+            <div
+              key={it.title}
+              className="reveal rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur-sm transition-colors duration-300 hover:bg-white/[0.08]"
+              style={{ "--reveal-delay": `${i * 100}ms` } as React.CSSProperties}
+            >
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-400/25">
+                <Icon d={it.icon} className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-lg font-bold text-white">{it.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/60">{it.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------- testimonials ------------------------------ */
+
+const testimonials = [
+  {
+    quote:
+      "Cars24 quoted ₹5.9L, a local dealer ₹6L. Prenew365's exchange offer was ₹6.4L — and the RC transfer was done in 3 weeks with updates on WhatsApp.",
+    name: "Rohit Sharma",
+    detail: "Exchanged a Hyundai i20 · Delhi",
+  },
+  {
+    quote:
+      "I didn't want strangers coming home for test drives. One evaluation, three dealership offers by evening, money in my account in two days.",
+    name: "Priya Nair",
+    detail: "Exchanged a Honda City · Bengaluru",
+  },
+  {
+    quote:
+      "Sold my last car privately and chased the buyer for the RC transfer for a year. This time it was handled completely — I just got the confirmation.",
+    name: "Amandeep Singh",
+    detail: "Exchanged a Maruti Swift · Chandigarh",
+  },
+];
+
+function Testimonials() {
+  return (
+    <section className="bg-mist-50 py-24">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
+            Real exchanges
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+            People who stopped selling and started exchanging
+          </h2>
+        </div>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {testimonials.map((t, i) => (
+            <figure
+              key={t.name}
+              className="reveal flex flex-col rounded-3xl border border-mist-200 bg-white p-8 shadow-sm transition-shadow duration-300 hover:shadow-xl hover:shadow-navy-950/8"
+              style={{ "--reveal-delay": `${i * 100}ms` } as React.CSSProperties}
+            >
+              <div className="flex gap-1 text-flame-500" aria-label="5 star rating">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <svg key={j} viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+                    <path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1L12 2z" />
+                  </svg>
+                ))}
+              </div>
+              <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-ink-600">
+                &ldquo;{t.quote}&rdquo;
+              </blockquote>
+              <figcaption className="mt-6 border-t border-mist-200 pt-5">
+                <p className="font-bold text-ink-900">{t.name}</p>
+                <p className="mt-0.5 text-sm text-ink-400">{t.detail}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------- faq ----------------------------------- */
+
+const faqs = [
+  {
+    q: "How can you promise the best price in the market?",
+    a: "Because you're not selling — you're exchanging. A resale dealer pays you less so they can profit on resale. A new-car dealership pays you more because your car helps them close a new-car sale, and they earn on that sale too. Multiple dealerships compete for your car, which pushes your price up, not down. If you have a better written quote, show us — we'll beat it or tell you honestly to take it.",
+  },
+  {
+    q: "Do I have to buy a new car to exchange mine?",
+    a: "No. 'Exchange' describes how your car moves — through new-car dealership channels — not what you have to do. You simply hand over your car and receive full payment. Buying a new car from a partner dealership is optional (though you'll get extra exchange benefits if you do).",
+  },
+  {
+    q: "What does 'assured RC transfer' actually mean?",
+    a: "Your car's registration certificate is transferred out of your name through the dealership channel, and we track it end-to-end until the new RC is issued. You get written assurance and status updates at every stage — so future challans, tolls or liabilities can never land on you.",
+  },
+  {
+    q: "How fast do I get paid?",
+    a: "Once you accept an offer and hand over the car with documents, full payment reaches your bank account within 48 hours on average. No cash deals, no instalments, no 'token now, rest later'.",
+  },
+  {
+    q: "Is the doorstep evaluation really free?",
+    a: "Yes — completely free with zero obligation. Our evaluator inspects your car at your home or office, and you're free to reject every offer you receive. No charges, no pressure.",
+  },
+  {
+    q: "Which cities and cars do you cover?",
+    a: "We work with 400+ new-car dealership partners across major Indian cities, covering all mainstream brands — Maruti Suzuki, Hyundai, Tata, Mahindra, Kia, Toyota, Honda and more. Enter your car number and we'll confirm coverage for your location right away.",
+  },
+];
+
+function Faq() {
+  return (
+    <section id="faq" className="bg-white py-24">
+      <div className="mx-auto max-w-3xl px-5 lg:px-8">
+        <div className="reveal text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
+            FAQ
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+            Questions, answered straight
+          </h2>
+        </div>
+
+        <div className="mt-12 space-y-3">
+          {faqs.map((f, i) => (
+            <details
+              key={f.q}
+              className="faq reveal group rounded-2xl border border-mist-200 bg-mist-50 transition-colors duration-200 open:bg-white open:shadow-lg open:shadow-navy-950/5"
+              style={{ "--reveal-delay": `${i * 60}ms` } as React.CSSProperties}
+            >
+              <summary className="flex cursor-pointer items-center justify-between gap-4 px-6 py-5 text-left text-[15px] font-bold text-ink-900 [list-style:none]">
+                {f.q}
+                <span className="faq-icon grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-ink-600 ring-1 ring-mist-200 group-open:bg-accent-500 group-open:text-white group-open:ring-accent-500">
+                  <Icon d={paths.plus} className="h-4 w-4" />
+                </span>
+              </summary>
+              <p className="px-6 pb-6 text-[15px] leading-relaxed text-ink-600">
+                {f.a}
+              </p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------ final cta + footer ------------------------- */
+
+function FinalCta() {
+  return (
+    <section className="relative overflow-hidden bg-navy-950 py-24">
+      <div className="hero-grid absolute inset-0" />
+      <div className="absolute left-1/2 top-1/2 h-[400px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-500/15 blur-[120px]" />
+
+      <div className="relative mx-auto max-w-3xl px-5 text-center lg:px-8">
+        <h2 className="reveal text-3xl font-extrabold tracking-tight text-white sm:text-5xl">
+          Your car is worth more
+          <br />
+          <span className="bg-gradient-to-r from-accent-500 via-flame-500 to-amber-400 bg-clip-text text-transparent">
+            than any quote you&apos;ve got.
+          </span>
+        </h2>
+        <p className="reveal mt-5 text-lg text-white/60">
+          Find out in 30 seconds. Free evaluation, zero obligation.
+        </p>
+        <div className="reveal mx-auto mt-9 max-w-xl">
+          <RegForm dark />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t border-white/10 bg-navy-950 py-12">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-start">
+          <div className="max-w-sm text-center md:text-left">
+            <a href="#" className="inline-flex items-center gap-2.5" aria-label="Prenew365 home">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-accent-500 to-flame-500 text-white">
+                <Icon d={paths.car} className="h-5 w-5" />
+              </span>
+              <span className="text-lg font-extrabold tracking-tight text-white">
+                Prenew<span className="text-accent-500">365</span>
+              </span>
+            </a>
+            <p className="mt-4 text-sm leading-relaxed text-white/50">
+              The best price for your car — because you don&apos;t sell, you exchange.
+              Assured RC transfer through new-car dealership channels.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center gap-3 md:items-end">
+            <a
+              href="tel:+911800000365"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 transition-colors hover:text-white"
+            >
+              <Icon d={paths.phone} className="h-4 w-4" />
+              1800-000-365 (toll free)
+            </a>
+            <div className="flex gap-6">
+              {navLinks.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  className="text-sm font-medium text-white/50 transition-colors hover:text-white"
+                >
+                  {l.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/35">
+          © {new Date().getFullYear()} Prenew365. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ----------------------------------- page ---------------------------------- */
+
+export default function Home() {
+  useReveal();
+
+  return (
+    <main>
+      <Navbar />
+      <Hero />
+      <BrandMarquee />
+      <Stats />
+      <WhyExchange />
+      <HowItWorks />
+      <NetworkBenefits />
+      <RcTransfer />
+      <Testimonials />
+      <Faq />
+      <FinalCta />
+      <Footer />
+    </main>
   );
 }
