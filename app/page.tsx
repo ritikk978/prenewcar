@@ -85,9 +85,16 @@ const navLinks = [
   { href: "#faq", label: "FAQ" },
 ];
 
-function Navbar() {
+const navCta: Record<Tab, { label: string; href: string }> = {
+  exchange: { label: "Get exchange price", href: "#get-price" },
+  new: { label: "Choose your car", href: "#find-car" },
+  prenew: { label: "Find your Prenew", href: "#find-prenew" },
+};
+
+function Navbar({ tab }: { tab: Tab }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const cta = navCta[tab];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -128,10 +135,10 @@ function Navbar() {
 
         <div className="hidden md:block">
           <a
-            href="#get-price"
+            href={cta.href}
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent-500 to-flame-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-accent-500/30 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98]"
           >
-            Get exchange price
+            {cta.label}
             <Icon d={paths.arrowRight} className="h-4 w-4" />
           </a>
         </div>
@@ -160,11 +167,11 @@ function Navbar() {
               </a>
             ))}
             <a
-              href="#get-price"
+              href={cta.href}
               onClick={() => setOpen(false)}
               className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-accent-500 to-flame-500 px-5 py-3 text-sm font-bold text-white"
             >
-              Get exchange price
+              {cta.label}
               <Icon d={paths.arrowRight} className="h-4 w-4" />
             </a>
           </div>
@@ -260,6 +267,71 @@ function RegForm() {
         className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-flame-500 px-7 text-base font-bold text-white shadow-lg shadow-accent-500/30 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
       >
         Get exchange price
+        <Icon d={paths.arrowRight} className="h-5 w-5" />
+      </button>
+    </form>
+  );
+}
+
+const carWishCopy = {
+  new: {
+    placeholder: "e.g. Creta SX, Nexon EV, Fronx…",
+    cta: "Get my best deal",
+    done: (car: string) =>
+      `Great choice — ${car}. Our deal expert will call you within 30 minutes with competing dealership offers.`,
+  },
+  prenew: {
+    placeholder: "e.g. Swift 2022, City under ₹8L…",
+    cta: "Find my Prenew",
+    done: (car: string) =>
+      `Noted — ${car}. Our Prenew expert will call you within 30 minutes with certified cars that match.`,
+  },
+} as const;
+
+function CarWishForm({ variant }: { variant: keyof typeof carWishCopy }) {
+  const id = useId();
+  const [car, setCar] = useState("");
+  const [done, setDone] = useState(false);
+  const copy = carWishCopy[variant];
+
+  if (done) {
+    return (
+      <div
+        className="flex items-center gap-3 rounded-2xl bg-emerald-50 p-4 text-emerald-900 ring-1 ring-emerald-200"
+        role="status"
+      >
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
+          <Icon d={paths.check} className="h-5 w-5" />
+        </span>
+        <p className="text-sm font-semibold">{copy.done(car.trim())}</p>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (car.trim().length >= 3) setDone(true);
+      }}
+      className="flex flex-col gap-3 rounded-2xl bg-white p-2 shadow-xl shadow-navy-950/10 ring-1 ring-mist-200 sm:flex-row sm:items-center"
+    >
+      <label htmlFor={id} className="sr-only">
+        Which car do you want to buy?
+      </label>
+      <input
+        id={id}
+        value={car}
+        onChange={(e) => setCar(e.target.value)}
+        placeholder={copy.placeholder}
+        autoComplete="off"
+        className="h-13 min-h-[52px] flex-1 rounded-xl bg-mist-100 px-5 text-base font-semibold text-ink-900 outline-none transition-shadow placeholder:font-medium placeholder:text-ink-400 focus-visible:ring-2 focus-visible:ring-accent-500"
+      />
+      <button
+        type="submit"
+        className="inline-flex min-h-[52px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accent-500 to-flame-500 px-7 text-base font-bold text-white shadow-lg shadow-accent-500/30 transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]"
+      >
+        {copy.cta}
         <Icon d={paths.arrowRight} className="h-5 w-5" />
       </button>
     </form>
@@ -686,6 +758,16 @@ function NewCarDeal() {
           </p>
         </div>
 
+        <div id="find-car" className="reveal mx-auto mt-10 max-w-xl scroll-mt-28">
+          <p className="mb-3 text-center text-base font-bold text-ink-900">
+            Which car do you want to buy?
+          </p>
+          <CarWishForm variant="new" />
+          <p className="mt-3 text-center text-sm font-medium text-ink-400">
+            Any brand, any model — 400+ dealerships compete for your booking.
+          </p>
+        </div>
+
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {newCarSteps.map((s, i) => (
             <div
@@ -791,13 +873,24 @@ function PrenewHero() {
             ))}
           </div>
 
-          <a
-            href="tel:+911800000365"
-            className="rise mt-9 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent-500 to-flame-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-accent-500/30 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98]"
+          <div
+            id="find-prenew"
+            className="rise mt-9 max-w-xl scroll-mt-28"
             style={{ "--rise-delay": "400ms" } as React.CSSProperties}
           >
+            <p className="mb-3 text-base font-bold text-ink-900">
+              Which car are you looking for?
+            </p>
+            <CarWishForm variant="prenew" />
+          </div>
+
+          <a
+            href="tel:+911800000365"
+            className="rise mt-5 inline-flex items-center gap-2 text-sm font-semibold text-ink-600 transition-colors hover:text-ink-900"
+            style={{ "--rise-delay": "500ms" } as React.CSSProperties}
+          >
             <Icon d={paths.phone} className="h-4 w-4" />
-            Talk to us — 1800-000-365
+            Prefer to talk? 1800-000-365 (toll free)
           </a>
         </div>
       </div>
@@ -1002,7 +1095,23 @@ function Faq() {
 
 /* ------------------------------ final cta + footer ------------------------- */
 
-function FinalCta() {
+function FinalCta({
+  title = (
+    <>
+      Your car is worth more
+      <br />
+      <span className="bg-gradient-to-r from-accent-500 via-flame-500 to-amber-400 bg-clip-text text-transparent">
+        than any quote you&apos;ve got.
+      </span>
+    </>
+  ),
+  sub = "Find out in 30 seconds. Free evaluation, zero obligation.",
+  form = <RegForm />,
+}: {
+  title?: React.ReactNode;
+  sub?: string;
+  form?: React.ReactNode;
+}) {
   return (
     <section className="relative overflow-hidden bg-mist-50 py-24">
       <div className="hero-grid absolute inset-0" />
@@ -1010,18 +1119,10 @@ function FinalCta() {
 
       <div className="relative mx-auto max-w-3xl px-5 text-center lg:px-8">
         <h2 className="reveal text-3xl font-extrabold tracking-tight text-ink-900 sm:text-5xl">
-          Your car is worth more
-          <br />
-          <span className="bg-gradient-to-r from-accent-500 via-flame-500 to-amber-400 bg-clip-text text-transparent">
-            than any quote you&apos;ve got.
-          </span>
+          {title}
         </h2>
-        <p className="reveal mt-5 text-lg text-ink-600">
-          Find out in 30 seconds. Free evaluation, zero obligation.
-        </p>
-        <div className="reveal mx-auto mt-9 max-w-xl">
-          <RegForm />
-        </div>
+        <p className="reveal mt-5 text-lg text-ink-600">{sub}</p>
+        <div className="reveal mx-auto mt-9 max-w-xl">{form}</div>
       </div>
     </section>
   );
@@ -1085,7 +1186,7 @@ export default function Home() {
 
   return (
     <main>
-      <Navbar />
+      <Navbar tab={tab} />
       <TabBar tab={tab} setTab={setTab} />
 
       {tab === "exchange" && (
@@ -1108,7 +1209,19 @@ export default function Home() {
           <BrandMarquee />
           <Stats />
           <Testimonials />
-          <FinalCta />
+          <FinalCta
+            title={
+              <>
+                Tell us the car.
+                <br />
+                <span className="bg-gradient-to-r from-accent-500 via-flame-500 to-amber-400 bg-clip-text text-transparent">
+                  We&apos;ll win you the deal.
+                </span>
+              </>
+            }
+            sub="Competing dealership offers, negotiated for you — plus a ₹10,000 accessories voucher."
+            form={<CarWishForm variant="new" />}
+          />
         </>
       )}
 
