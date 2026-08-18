@@ -53,6 +53,7 @@ const paths = {
   mapPin:
     "M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6",
   zap: "M13 2 3 14h9l-1 8 10-12h-9l1-8",
+  gift: "M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z",
 };
 
 /* ------------------------------ scroll reveal ------------------------------ */
@@ -80,6 +81,7 @@ function useReveal() {
 const navLinks = [
   { href: "#why-exchange", label: "Why exchange" },
   { href: "#how-it-works", label: "How it works" },
+  { href: "#new-car", label: "New car deal" },
   { href: "#rc-transfer", label: "RC transfer" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -269,7 +271,7 @@ function OfferCard() {
           {[
             { icon: paths.handshake, text: "Exchanged via new-car dealership" },
             { icon: paths.fileCheck, text: "RC transfer — assured & tracked" },
-            { icon: paths.clock, text: "Payment within 48 hours" },
+            { icon: paths.gift, text: "₹10,000 accessories voucher on your new car" },
           ].map((row) => (
             <div key={row.text} className="flex items-center gap-3">
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/10 text-flame-500">
@@ -613,6 +615,93 @@ function HowItWorks() {
   );
 }
 
+/* ------------------------------ new car deal ------------------------------- */
+
+const newCarSteps = [
+  {
+    icon: paths.car,
+    title: "You choose the car",
+    text: "Tell us the car, variant and colour you want — any brand, any dealership in our network.",
+  },
+  {
+    icon: paths.tag,
+    title: "Dealers share their offers",
+    text: "Partner dealerships send their best quotes for that exact car, competing for your business.",
+  },
+  {
+    icon: paths.handshake,
+    title: "We negotiate the best deal",
+    text: "Our experts push discounts, exchange bonuses and freebies further than you could alone.",
+  },
+];
+
+function NewCarDeal() {
+  return (
+    <section id="new-car" className="relative overflow-hidden bg-navy-950 py-24">
+      <div className="hero-grid absolute inset-0" />
+      <div className="absolute -right-40 top-0 h-96 w-96 rounded-full bg-flame-500/10 blur-[100px]" />
+
+      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="reveal mx-auto max-w-2xl text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-flame-500">
+            Your next car, sorted too
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            We don&apos;t just take your old car.
+            <br className="hidden sm:block" /> We win you the new one.
+          </h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/60">
+            The same dealership network that competes for your old car competes
+            for your new-car business — and we do the haggling for you.
+          </p>
+        </div>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
+          {newCarSteps.map((s, i) => (
+            <div
+              key={s.title}
+              className="reveal relative rounded-3xl border border-white/10 bg-white/[0.05] p-8 backdrop-blur-sm transition-colors duration-300 hover:bg-white/[0.08]"
+              style={{ "--reveal-delay": `${i * 100}ms` } as React.CSSProperties}
+            >
+              <span className="absolute right-6 top-6 text-4xl font-extrabold text-white/10">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/25">
+                <Icon d={s.icon} className="h-6 w-6" />
+              </span>
+              <h3 className="mt-5 text-lg font-bold text-white">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/60">{s.text}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* voucher ticket */}
+        <div className="reveal mx-auto mt-12 max-w-3xl">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-accent-600 via-accent-500 to-flame-500 p-1 shadow-2xl shadow-accent-500/30">
+            <div className="flex flex-col items-center gap-6 rounded-[1.4rem] bg-navy-950/20 px-8 py-8 sm:flex-row sm:gap-8 sm:px-10">
+              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-white/15 text-white ring-1 ring-white/30 backdrop-blur-sm">
+                <Icon d={paths.gift} className="h-8 w-8" />
+              </span>
+              <div className="hidden h-16 border-l-2 border-dashed border-white/30 sm:block" />
+              <div className="text-center sm:text-left">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">
+                  Assured with every new car booked
+                </p>
+                <p className="mt-1.5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                  ₹10,000 accessories voucher
+                </p>
+                <p className="mt-1.5 text-sm font-medium text-white/75">
+                  Seat covers, mats, infotainment, styling — your pick, on us.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* --------------------------- benefits across network ----------------------- */
 
 const networkBenefits = [
@@ -863,7 +952,11 @@ const faqs = [
   },
   {
     q: "Do I have to buy a new car to exchange mine?",
-    a: "No. 'Exchange' describes how your car moves — through new-car dealership channels — not what you have to do. You simply hand over your car and receive full payment. Buying a new car from a partner dealership is optional (though you'll get extra exchange benefits if you do).",
+    a: "No. 'Exchange' describes how your car moves — through new-car dealership channels — not what you have to do. You simply hand over your car and receive full payment. Buying a new car through us is optional — but if you do, you choose the car, dealers compete with offers, we negotiate the final deal for you, and you get an assured ₹10,000 accessories voucher on top.",
+  },
+  {
+    q: "How does the ₹10,000 accessories voucher work?",
+    a: "Book your new car through Prenew365 — any brand, any partner dealership — and you get an assured accessories voucher worth ₹10,000, redeemable on things like seat covers, mats, infotainment and styling at delivery. It's over and above the deal we negotiate for you, not part of it.",
   },
   {
     q: "What does 'assured RC transfer' actually mean?",
@@ -1010,6 +1103,7 @@ export default function Home() {
       <Stats />
       <WhyExchange />
       <HowItWorks />
+      <NewCarDeal />
       <NetworkBenefits />
       <RcTransfer />
       <Testimonials />
