@@ -58,7 +58,7 @@ const paths = {
 
 /* ------------------------------ scroll reveal ------------------------------ */
 
-function useReveal() {
+function useReveal(dep?: unknown) {
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal");
     const io = new IntersectionObserver(
@@ -73,7 +73,7 @@ function useReveal() {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [dep]);
 }
 
 /* ---------------------------------- navbar --------------------------------- */
@@ -81,7 +81,6 @@ function useReveal() {
 const navLinks = [
   { href: "#why-exchange", label: "Why exchange" },
   { href: "#how-it-works", label: "How it works" },
-  { href: "#new-car", label: "New car deal" },
   { href: "#rc-transfer", label: "RC transfer" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -172,6 +171,44 @@ function Navbar() {
         </div>
       )}
     </header>
+  );
+}
+
+/* --------------------------------- tab bar --------------------------------- */
+
+const tabs = [
+  { id: "exchange", label: "Exchange", icon: paths.handshake },
+  { id: "new", label: "Buy New Car", icon: paths.car },
+  { id: "prenew", label: "Buy Prenew", icon: paths.tag },
+] as const;
+
+type Tab = (typeof tabs)[number]["id"];
+
+function TabBar({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
+  return (
+    <div className="bg-navy-950 pt-20 sm:pt-24">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="flex gap-1 rounded-2xl border border-white/10 bg-white/5 p-1.5 backdrop-blur-md sm:max-w-md">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setTab(t.id);
+                window.scrollTo({ top: 0 });
+              }}
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-2.5 text-xs font-bold transition-colors duration-200 sm:gap-2 sm:px-3 sm:text-sm ${
+                tab === t.id
+                  ? "bg-gradient-to-r from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/25"
+                  : "text-white/60 hover:text-white"
+              }`}
+            >
+              <Icon d={t.icon} className="h-4 w-4 shrink-0" />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -311,7 +348,7 @@ function Hero() {
   return (
     <section
       id="get-price"
-      className="relative overflow-hidden bg-navy-950 pb-20 pt-32 sm:pt-40"
+      className="relative overflow-hidden bg-navy-950 pb-20 pt-10 sm:pt-14"
     >
       {/* backdrop */}
       <div className="hero-grid absolute inset-0" />
@@ -702,116 +739,73 @@ function NewCarDeal() {
   );
 }
 
-/* --------------------------- benefits across network ----------------------- */
+/* ------------------------------- buy prenew -------------------------------- */
 
-const networkBenefits = [
-  {
-    heading: "For New Car Dealers",
-    sub: "Turn exchange inventory into an advantage",
-    icon: paths.car,
-    items: [
-      {
-        icon: paths.zap,
-        title: "Faster Exchange Liquidation",
-        text: "Clear exchange inventory 3x faster through our dealer network.",
-      },
-      {
-        icon: paths.trendingUp,
-        title: "Higher Resale Realization",
-        text: "Get better prices through competitive dealer bidding.",
-      },
-      {
-        icon: paths.star,
-        title: "Improved Customer Satisfaction",
-        text: "Better exchange values lead to happier customers.",
-      },
-      {
-        icon: paths.rupee,
-        title: "Additional Revenue Stream",
-        text: "Monetize exchange inventory more effectively.",
-      },
-    ],
-  },
-  {
-    heading: "For Used Car Dealers",
-    sub: "Source smarter, sell faster",
-    icon: paths.users,
-    items: [
-      {
-        icon: paths.shieldCheck,
-        title: "Access to Verified Inventory",
-        text: "Source quality vehicles from trusted new car dealers.",
-      },
-      {
-        icon: paths.mapPin,
-        title: "Pan-India Network",
-        text: "Break geographical barriers and source from anywhere.",
-      },
-      {
-        icon: paths.trendingUp,
-        title: "Better Margins",
-        text: "Direct sourcing eliminates middlemen and improves profitability.",
-      },
-      {
-        icon: paths.clock,
-        title: "Reduced Sourcing Time",
-        text: "Find the right vehicles in minutes, not days.",
-      },
-    ],
-  },
-];
-
-function NetworkBenefits() {
+function PrenewHero() {
   return (
-    <section id="network" className="bg-mist-50 py-24">
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        <div className="reveal mx-auto max-w-2xl text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-accent-500">
-            Benefits across the network
-          </p>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
-            Powerful advantages for every dealer in the ecosystem
-          </h2>
-          <p className="mt-4 text-lg leading-relaxed text-ink-600">
-            The same network that gets you the best exchange price keeps dealers
-            winning too — that&apos;s why they compete for your car.
-          </p>
-        </div>
+    <section className="relative overflow-hidden bg-navy-950 pb-20 pt-10 sm:pt-14">
+      <div className="hero-grid absolute inset-0" />
+      <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/10 blur-[120px]" />
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-2">
-          {networkBenefits.map((group, gi) => (
-            <div
-              key={group.heading}
-              className="reveal rounded-3xl border border-mist-200 bg-white p-8 shadow-sm"
-              style={{ "--reveal-delay": `${gi * 120}ms` } as React.CSSProperties}
-            >
-              <div className="flex items-center gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-accent-500 to-flame-500 text-white shadow-lg shadow-accent-500/25">
-                  <Icon d={group.icon} className="h-5 w-5" />
+      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="max-w-2xl">
+          <div className="rise inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 backdrop-blur-md">
+            <Icon d={paths.shieldCheck} className="h-3.5 w-3.5 text-flame-500" />
+            <span className="text-xs font-semibold tracking-wide text-white/80">
+              Certified pre-owned, dealer-sourced
+            </span>
+          </div>
+
+          <h1
+            className="rise mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl"
+            style={{ "--rise-delay": "100ms" } as React.CSSProperties}
+          >
+            Buy a Prenew car.
+            <br />
+            <span className="bg-gradient-to-r from-accent-500 via-flame-500 to-amber-400 bg-clip-text text-transparent">
+              Better than used.
+            </span>
+          </h1>
+
+          <p
+            className="rise mt-6 max-w-xl text-lg leading-relaxed text-white/70"
+            style={{ "--rise-delay": "200ms" } as React.CSSProperties}
+          >
+            Every Prenew car comes from a{" "}
+            <strong className="text-white">new-car dealership exchange</strong> —
+            inspected, transparently priced, with{" "}
+            <strong className="text-white">assured RC transfer</strong> to your name.
+          </p>
+
+          <div
+            className="rise mt-8 flex flex-wrap gap-x-6 gap-y-3"
+            style={{ "--rise-delay": "300ms" } as React.CSSProperties}
+          >
+            {[
+              "Dealership-sourced cars",
+              "Assured RC transfer",
+              "Transparent pricing",
+            ].map((t) => (
+              <span
+                key={t}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-white/75"
+              >
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-emerald-500/20 text-emerald-400">
+                  <Icon d={paths.check} className="h-3 w-3" strokeWidth={3} />
                 </span>
-                <div>
-                  <h3 className="text-lg font-bold text-ink-900">{group.heading}</h3>
-                  <p className="text-sm text-ink-400">{group.sub}</p>
-                </div>
-              </div>
+                {t}
+              </span>
+            ))}
+          </div>
 
-              <div className="mt-7 grid gap-6 sm:grid-cols-2">
-                {group.items.map((it) => (
-                  <div key={it.title} className="flex items-start gap-3">
-                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-mist-100 text-accent-500">
-                      <Icon d={it.icon} className="h-4.5 w-4.5" />
-                    </span>
-                    <div>
-                      <p className="text-[15px] font-bold text-ink-900">{it.title}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-ink-600">
-                        {it.text}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+          <a
+            href="tel:+911800000365"
+            className="rise mt-9 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent-500 to-flame-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-accent-500/30 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.98]"
+            style={{ "--rise-delay": "400ms" } as React.CSSProperties}
+          >
+            <Icon d={paths.phone} className="h-4 w-4" />
+            Talk to us — 1800-000-365
+          </a>
         </div>
       </div>
     </section>
@@ -1093,22 +1087,47 @@ function Footer() {
 /* ----------------------------------- page ---------------------------------- */
 
 export default function Home() {
-  useReveal();
+  const [tab, setTab] = useState<Tab>("exchange");
+  useReveal(tab);
 
   return (
     <main>
       <Navbar />
-      <Hero />
-      <BrandMarquee />
-      <Stats />
-      <WhyExchange />
-      <HowItWorks />
-      <NewCarDeal />
-      <NetworkBenefits />
-      <RcTransfer />
-      <Testimonials />
-      <Faq />
-      <FinalCta />
+      <TabBar tab={tab} setTab={setTab} />
+
+      {tab === "exchange" && (
+        <>
+          <Hero />
+          <BrandMarquee />
+          <Stats />
+          <WhyExchange />
+          <HowItWorks />
+          <RcTransfer />
+          <Testimonials />
+          <Faq />
+          <FinalCta />
+        </>
+      )}
+
+      {tab === "new" && (
+        <>
+          <NewCarDeal />
+          <BrandMarquee />
+          <Stats />
+          <Testimonials />
+          <FinalCta />
+        </>
+      )}
+
+      {tab === "prenew" && (
+        <>
+          <PrenewHero />
+          <BrandMarquee />
+          <RcTransfer />
+          <Testimonials />
+        </>
+      )}
+
       <Footer />
     </main>
   );
